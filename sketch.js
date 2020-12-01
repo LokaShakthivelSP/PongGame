@@ -1,8 +1,8 @@
-var userPaddle, computerPaddle, computerScore, playerScore, gameState, ball,scoreSound, wall_hitSound, hitSound;
+var canvas, userPaddle, computerPaddle, computerScore, playerScore, gameState, ball,scoreSound, wall_hitSound, hitSound;
 
 function setup() {
   
-createCanvas(400,400);
+canvas=createCanvas(400,400);
 
 //create a user paddle sprite
 userPaddle = createSprite(390,200,10,70);
@@ -30,6 +30,8 @@ function draw() {
   fill(0);
   textAlign(CENTER);
 
+  canvas.mouseClicked(fxn);
+
   //display Scores
   text(computerScore,170,20);
   text(playerScore, 230,20);
@@ -40,12 +42,20 @@ function draw() {
   }
 
   if (gameState === "serve") {
-    text("Press Space to Serve",200,180);
+    text("Press Space or Tap to Serve",200,180);
+  }
+
+  //give velocity to the ball when the user presses play
+  //assign random velocities later for fun
+  if (keyDown("space") && gameState == "serve") {
+    ball.velocityX = 7;
+    ball.velocityY = 8;
+    gameState = "play";
   }
 
   if (gameState === "over") {
     text("Game Over!",200,160);
-    text("Press 'R' to Restart",200,180);
+    text("Press 'R' or Tap to Restart",200,180);
   }
 
   if (keyDown("r")) {
@@ -54,39 +64,24 @@ function draw() {
     playerScore = 0;
   }
 
-
-  //give velocity to the ball when the user presses play
-  //assign random velocities later for fun
-  if (keyDown("space") && gameState == "serve") {
-    ball.velocityX = random(6,10);
-    ball.velocityY = random(6,10);
-    gameState = "play";
-  }
-
   //make the userPaddle move with the mouse
-  userPaddle.y = World.mouseY;
-
-
+  userPaddle.y = mouseY;
 
   //make the ball bounce off the user paddle
   if(ball.isTouching(userPaddle)){
-    //hitSound.play();
     ball.x = ball.x - 5;
     ball.velocityX = -ball.velocityX;
   }
 
   //make the ball bounce off the computer paddle
   if(ball.isTouching(computerPaddle)){
-    //hitSound.play();
     ball.x = ball.x + 5;
     ball.velocityX = -ball.velocityX;
   }
 
   //place the ball back in the centre if it crosses the screen
   if(ball.x > 400 || ball.x < 0){
-    //scoreSound.play();
-
-  if (ball.x < 0) {
+    if (ball.x < 0) {
       playerScore++;
     }
     else {
@@ -108,10 +103,26 @@ function draw() {
   if (ball.isTouching(edges[2]) || ball.isTouching(edges[3])) {
     ball.bounceOff(edges[2]);
     ball.bounceOff(edges[3]);
-   // wall_hitSound.play();
   }
 
   //add AI to the computer paddle so that it always hits the ball
   computerPaddle.y = ball.y;
   drawSprites();
+}
+
+function mouseClicked(){
+  
+}
+
+function fxn(){
+  if(gameState === "serve"){
+    gameState="play";
+    ball.velocityX = 7;
+    ball.velocityY = 8;
+  }
+  if(gameState==="over"){
+    gameState = "serve";
+    computerScore = 0;
+    playerScore = 0;
+  }
 }
